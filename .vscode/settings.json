@@ -1,0 +1,6 @@
+{
+    "yaml.schemas": {
+        "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/inventory.json": "file:///home/phuwit/dogtape/ghostcms-podman-ansible/inventory/hosts.yml"
+    },
+    "robotcode.disableExtension": true
+}

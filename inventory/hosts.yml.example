@@ -1,0 +1,12 @@
+---
+all:
+  hosts:
+    hostname1:
+      ansible-host: host-ip
+  children:
+    ghostcms-database:
+      hosts:
+        hostname1:
+    ghostcms-app:
+      hosts:
+        hostname1:
