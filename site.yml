@@ -1,5 +1,7 @@
 ---
-- name: Example playbook
-  hosts: localhost
+- name: GhostCMS via Podman Quadlets
+  hosts: hakase
   roles:
-    - role: dogtape.ghostcms.run
+    - role: dogtape.ghostcms.podman
+    - role: dogtape.ghostcms.database
+    - role: dogtape.ghostcms.app
