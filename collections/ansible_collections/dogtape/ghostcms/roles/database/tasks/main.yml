@@ -1,0 +1,16 @@
+---
+- name: Copy dynamic quadlets
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "{{ ghost_quadlets_path }}"
+    mode: '600'
+  with_fileglob:
+    - "templates/*"
+
+- name: Start quadlets
+  ansible.builtin.systemd_service:
+    scope: user
+    enabled: true
+    name: "{{ item | basename | regex_replace('.*$') }}"
+  with_fileglob:
+    - "templates/*"

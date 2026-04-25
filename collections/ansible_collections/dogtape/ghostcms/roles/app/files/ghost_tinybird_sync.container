@@ -1,0 +1,23 @@
+[Unit]
+Description=Ghost Tinybird Sync
+Requires=ghost_tinybird_login.service
+After=ghost_tinybird_login.service
+
+[Container]
+Exec=sh -c "
+  if [ -d /var/lib/ghost/current/core/server/data/tinybird ]; then
+    rm -rf /data/tinybird/*;
+    cp -rf /var/lib/ghost/current/core/server/data/tinybird/* /data/tinybird/;
+    echo 'Tinybird files synced into shared volume.';
+  else
+    echo 'Tinybird source directory not found.';
+  fi
+"
+Image=ghost:6-alpine
+Network=ghost_network.network
+Volume=tinybird_files:/data/tinybird
+
+[Service]
+Restart=no
+Type=oneshot
+RemainAfterExit=yes

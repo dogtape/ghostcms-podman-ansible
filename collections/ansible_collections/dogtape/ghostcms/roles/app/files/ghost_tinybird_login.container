@@ -1,0 +1,18 @@
+[Unit]
+Description=Ghost Tinybird Login
+
+[Container]
+Exec=/usr/local/bin/tinybird-login
+Image=tinybird-login.build
+Network=ghost_network.network
+Volume=tinybird_home:/home/tinybird
+Volume=tinybird_files:/data/tinybird
+WorkingDir=/home/tinybird
+
+[Service]
+Restart=no
+Type=oneshot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target

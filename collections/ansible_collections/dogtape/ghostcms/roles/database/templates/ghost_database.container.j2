@@ -1,0 +1,30 @@
+[Unit]
+Description=MySQL for Ghost CMS
+
+[Container]
+Image=docker.io/library/mysql:{{ mysql_container_version }}
+AutoUpdate=registry
+Network=ghost.network
+
+EnvironmentFile=%d/ghost.env
+Environment=MYSQL_ROOT_PASSWORD={{ db_root_password }}
+Environment=MYSQL_USER={{ db_user }}
+Environment=MYSQL_PASSWORD={{ db_password }}
+Environment=MYSQL_DATABASE={{ db_name }}
+Environment=MYSQL_MULTIPLE_DATABASES=activitypub
+Volume={{ data_dir }}/data/mysql:/var/lib/mysql
+Volume={{ data_dir }}/mysql-init:/docker-entrypoint-initdb.d
+
+Label=traefik.enable=true
+Label=traefik.http.routers.ghost.rule=Host(`{{ fqdn }}`) || Host(`{{ admin_fqdn }}`)
+Label=traefik.http.services.ghost.loadbalancer.server.port=2368
+
+Notify=healthy
+HealthCmd=mysqladmin ping -p$$MYSQL_ROOT_PASSWORD -h 127.0.0.1
+HealthStartPeriod=30s
+HealthInterval=10s
+HealthTimeout=10s
+HealthRetries=120
+
+[Install]
+WantedBy=default.target

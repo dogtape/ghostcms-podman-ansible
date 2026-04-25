@@ -1,0 +1,23 @@
+[Unit]
+Description=Ghost Acitivity Pub
+Requires=ghost_database.service ghost_activitypub_migrate.container.service
+After=ghost_database.service ghost_activitypub_migrate.container.service
+
+[Container]
+Image=ghcr.io/tryghost/activitypub:{{ ghost_activitypub_container_version }}
+AutoUpdate=registry
+Network=ghost.network
+
+EnvironmentFile={{ data_dir }}/ghost.env
+Environment=NODE_ENV=production
+Environment=MYSQL_HOST=ghost_database
+Environment=MYSQL_USER={{ db_user }}
+Environment=MYSQL_PASSWORD={{ db_password }}
+Environment=MYSQL_DATABASE=activitypub
+Environment=LOCAL_STORAGE_PATH=/opt/activitypub/content/images/activitypub
+Environment=LOCAL_STORAGE_HOSTING_URL=https://{{ fqdn }}/content/images/activitypub
+
+Volumes={{ data_dir }}/data/ghost:/opt/activitypub/content
+
+[Install]
+WantedBy=default.target

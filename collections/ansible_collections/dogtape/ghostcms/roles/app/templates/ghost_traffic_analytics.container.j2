@@ -1,0 +1,18 @@
+[Unit]
+Description=Ghost Traffic Analytics
+Requires=ghost.service
+After=ghost.service
+
+[Container]
+Image=docker.io/library/ghost/traffic-analytics:{{ ghost_traffic_analytics_container_version }}
+Network=ghost.network
+EnvironmentFile={{ data_dir }}/ghost.env
+Environment=NODE_ENV=production
+Environment=PROXY_TARGET={{ tinybird_stats_endpoint }}/v0/events
+Environment=TINYBIRD_TRACKER_TOKEN={{ tinybird_tracker_token }}
+Environment=SALT_STORE_TYPE=file
+Environment=SALT_STORE_FILE_PATH=/data/salts.json
+Environment=LOG_LEVEL=debug
+
+[Install]
+WantedBy=default.target

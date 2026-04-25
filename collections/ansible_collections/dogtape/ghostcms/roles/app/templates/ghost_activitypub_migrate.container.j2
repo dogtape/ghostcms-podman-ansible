@@ -1,0 +1,16 @@
+[Unit]
+Description=Ghost Acitivitypub Migrate
+Requires=ghost_database.service
+After=ghost_database.service
+
+
+[Container]
+Image=ghcr.io/tryghost/activitypub-migrations:1
+Network=ghost_network.network
+
+Environment=MYSQL_DB=mysql://{{ db_user }}:{{ db_password }}@tcp(ghost_database:3306)/activitypub
+
+[Service]
+Restart=no
+Type=oneshot
+RemainAfterExit=yes

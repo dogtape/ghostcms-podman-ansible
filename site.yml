@@ -5,3 +5,4 @@
     - role: dogtape.ghostcms.podman
     - role: dogtape.ghostcms.database
     - role: dogtape.ghostcms.app
+    - role: dogtape.ghostcms.traefik

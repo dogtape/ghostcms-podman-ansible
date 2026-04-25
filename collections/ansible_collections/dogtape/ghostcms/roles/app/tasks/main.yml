@@ -1,0 +1,40 @@
+---
+- name: Install git
+  become: true
+  ansible.builtin.package:
+    name: git
+
+- name: Clone/pull ghost's compose repo
+  ansible.builtin.git:
+    repo: "https://github.com/TryGhost/ghost-docker.git"
+    dest: "{{ data_dir }}/docker"
+    update: true
+    clone: true
+    depth: 1
+    single_branch: true
+    version: main
+
+- name: Copy static quadlets
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ ghost_quadlets_path }}"
+    mode: '600'
+  with_fileglob:
+    - "files/*"
+
+- name: Copy dynamic quadlets
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "{{ ghost_quadlets_path }}"
+    mode: '600'
+  with_fileglob:
+    - "templates/*"
+
+- name: Start quadlets
+  ansible.builtin.systemd_service:
+    scope: user
+    enabled: true
+    name: "{{ item | basename | regex_replace('.*$') }}"
+  with_fileglob:
+    - "files/*"
+    - "templates/*"

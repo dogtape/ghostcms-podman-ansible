@@ -1,0 +1,19 @@
+[Unit]
+Description=Ghost Tinybird Deploy
+Requires=ghost_tinybird_sync.service
+After=ghost_tinybird_sync.service
+
+[Container]
+Exec=sh -c '
+  tb-wrapper --cloud deploy
+'
+Image=tinybird-deploy.build
+Network=ghost_network.network
+PodmanArgs=--tty
+Volume=tinybird_home:/home/tinybird
+Volume=tinybird_files:/data/tinybird
+WorkingDir=/data/tinybird
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes

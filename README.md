@@ -1,5 +1,11 @@
 # Dogtape Ghostcms Ansible Project
 
+## How to use
+
+1. Copy `inventory/hosts.yml.example` to `inventory/hosts.yml` and edit how to connect to hosts
+2. Create a vault password in `vault.pass`
+3. Create `db_root_password` and `db_password` variables using `ansible-vault encrypt_string --vault-password-file vault.pass {{ password }} --name {{ var name }}` and add it to `inventory/group_vars/secrets.yml`
+
 ## Included content/ Directory Structure
 
 The directory structure follows best practices recommended by the Ansible

@@ -1,0 +1,19 @@
+---
+- name: Install podman
+  become: true
+  ansible.builtin.package:
+    name: podman
+
+- name: Start and enable podman via systemd
+  ansible.builtin.systemd_service:
+    scope: user
+    enabled: true
+    name: podman.socket
+
+- name: Enable Linger for {{ ansible_facts['user_id'] }}
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/loginctl
+      - enable-linger
+      - "{{ ansible_facts['user_id'] }}"
+    creates: "/var/lib/systemd/linger/{{ ansible_facts['user_id'] }}"

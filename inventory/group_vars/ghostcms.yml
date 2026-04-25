@@ -1,0 +1,19 @@
+---
+mysql_container_version: lts
+db_user: ghost
+db_name: ghost
+# db_root_password:
+# db_password:
+data_dir: "{{ ansible_facts['user_dir'] }}/ghost"
+fqdn: dogtape.net
+admin_fqdn: admin.dogtape.net
+
+ghost_container_version: 6-alpine
+ghost_traffic_analytics_container_version: 1
+ghost_activitypub_container_version: 1
+# tinybird_admin_token:
+# tinybird_workspace_id:
+# tinybird_tracker_token:
+tinybird_stats_endpoint: https://api.tinybird.co
+
+ghost_quadlets_path: "{{ quadlets_path }}/ghost"

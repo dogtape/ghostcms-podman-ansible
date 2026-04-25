@@ -1,0 +1,33 @@
+[Unit]
+Description=Ghost CMS
+Requires=ghost_database.service
+After=ghost_database.service
+
+[Container]
+Image=docker.io/library/ghost:{{ ghost_container_version }}
+AutoUpdate=registry
+Network=ghost.network
+
+EnvironmentFile={{ data_dir }}/ghost.env
+Environment=NODE_ENV=production
+Environment=url=https://{{ fqdn }}
+Environment=admin__url=https://{{ admin_fqdn }}
+Environment=database__client=mysql
+Environment=database__connection__host=ghost_database
+Environment=database__connection__user={{ db_user }}
+Environment=database__connection__password={{ db_password }}
+Environment=database__connection__database={{ db_name }}
+Environment=tinybird__tracker__endpoint={{ fqdn }}/.ghost/analytics/api/v1/page_hit
+Environment=tinybird__adminToken={{ tinybird_admin_token }}
+Environment=tinybird__workspaceId={{ tinybird_workspace_id }}
+Environment=tinybird__tracker__datasource=analytics_events
+Environment=tinybird__stats__endpoint={{ tinybird_stats_endpoint }}
+
+Volume={{ data_dir }}/data/ghost:/var/lib/ghost/content:Z
+
+Label=traefik.enable=true
+Label=traefik.http.routers.ghost.rule=Host(`{{ fqdn }}`) || Host(`{{ admin_fqdn }}`)
+Label=traefik.http.services.ghost.loadbalancer.server.port=2368
+
+[Install]
+WantedBy=default.target
