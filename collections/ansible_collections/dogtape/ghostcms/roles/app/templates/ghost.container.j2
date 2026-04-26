@@ -1,0 +1,46 @@
+[Unit]
+Description=Ghost CMS
+Requires=ghost_database.service
+After=ghost_database.service
+
+[Container]
+ContainerName=ghost
+Image=docker.io/library/ghost:{{ ghost_container_version }}
+AutoUpdate=registry
+Network=ghost.network
+Network=traefik.network
+
+Environment=NODE_ENV=production
+Environment=url=https://{{ fqdn }}
+{% if admin_fqdn is defined %}
+Environment=admin__url=https://{{ admin_fqdn }}
+{% endif %}
+Environment=database__client=mysql
+Environment=database__connection__host=ghost_database
+Environment=database__connection__user={{ db_user }}
+Environment=database__connection__password={{ db_password }}
+Environment=database__connection__database={{ db_name }}
+Environment=tinybird__tracker__endpoint=https://{{ fqdn }}/.ghost/analytics/api/v1/page_hit
+Environment=tinybird__adminToken={{ tinybird_admin_token }}
+Environment=tinybird__workspaceId={{ tinybird_workspace_id }}
+Environment=tinybird__tracker__datasource=analytics_events
+Environment=tinybird__stats__endpoint={{ tinybird_stats_endpoint }}
+Environment=mail__transport=SMTP
+Environment=mail__options__secure=true
+Environment=mail__options__host={{ smtp_host }}
+Environment=mail__options__port={{ smtp_port }}
+Environment=mail__options__auth__user={{ smtp_auth_user }}
+Environment=mail__options__auth__pass={{ smtp_auth_pass }}
+Environment=mail__from={{ smtp_from }}
+
+Volume={{ ghost_upload_path }}:/var/lib/ghost/content:Z
+
+Label=traefik.enable=true
+Label=traefik.http.services.ghost.loadbalancer.server.port=2368
+Label=traefik.http.routers.ghost.entrypoints=websecure
+Label=traefik.http.routers.ghost.tls=true
+Label=traefik.http.routers.ghost.rule=Host(`{{ fqdn }}`){% if admin_fqdn is defined %} || Host(`{{ admin_fqdn }}`) {% endif %}
+
+
+[Install]
+WantedBy=default.target

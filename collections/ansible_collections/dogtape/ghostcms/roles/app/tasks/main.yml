@@ -1,0 +1,47 @@
+---
+- name: "Create Folder if not exist"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    mode: '755'
+    state: directory
+  loop:
+    - "{{ ghost_quadlets_path }}"
+    - "{{ data_dir }}"
+    - "{{ ghost_upload_path }}"
+    - "{{ mysql_data_path }}"
+    - "{{ mysql_init_path }}"
+
+- name: Download database init
+  ansible.builtin.get_url:
+    url: "https://github.com/TryGhost/ghost-docker/raw/refs/heads/main/mysql-init/create-multiple-databases.sh"
+    dest: "{{ mysql_init_path }}/create-multiple-databases.sh"
+    mode: "755"
+
+- name: Copy static quadlets
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ ghost_quadlets_path }}/{{ item | basename }}"
+    mode: '600'
+  with_fileglob:
+    - "files/*"
+
+- name: Copy dynamic quadlets
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "{{ ghost_quadlets_path }}/{{ item | basename | regex_replace('\\.j2$') }}"
+    mode: '600'
+  with_fileglob:
+    - "templates/*"
+
+- name: Start quadlets
+  ansible.builtin.systemd_service:
+    scope: user
+    state: restarted
+    daemon_reload: true
+    name: "{{ item }}"
+  loop:
+    - "ghost_database"
+    - "ghost_activitypub_migrate"
+    - "ghost_activitypub"
+    - "ghost_traffic_analytics"
+    - "ghost"

@@ -1,0 +1,17 @@
+[Unit]
+Description=Traefik Reverse Proxy
+Wants=network-online.target
+After=network-online.target nss-lookup.target
+
+[Container]
+Image=docker.io/library/traefik:3
+Network=traefik.network
+PublishPort=80:80
+PublishPort=443:443
+
+Volume=/run/user/1000/podman/podman.sock:/var/run/docker.sock:ro,Z
+
+Exec=--providers.docker=true --providers.docker.endpoint=unix:///var/run/docker.sock --providers.docker.exposedbydefault=false --entrypoints.web.address=:80 --entrypoints.websecure.address=:443
+
+[Install]
+WantedBy=default.target

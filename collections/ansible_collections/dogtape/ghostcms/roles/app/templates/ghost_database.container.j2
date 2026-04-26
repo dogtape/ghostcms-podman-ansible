@@ -1,0 +1,26 @@
+[Unit]
+Description=MySQL for Ghost CMS
+
+[Container]
+ContainerName=ghost_database
+Image=docker.io/library/mysql:{{ mysql_container_version }}
+AutoUpdate=registry
+Network=ghost.network
+
+Environment=MYSQL_ROOT_PASSWORD={{ db_root_password }}
+Environment=MYSQL_USER={{ db_user }}
+Environment=MYSQL_PASSWORD={{ db_password }}
+Environment=MYSQL_DATABASE={{ db_name }}
+Environment=MYSQL_MULTIPLE_DATABASES=activitypub
+Volume={{ mysql_data_path }}:/var/lib/mysql
+Volume={{ mysql_init_path }}:/docker-entrypoint-initdb.d
+
+Notify=healthy
+HealthCmd=mysqladmin ping -p$$MYSQL_ROOT_PASSWORD -h 127.0.0.1
+HealthStartPeriod=30s
+HealthInterval=10s
+HealthTimeout=10s
+HealthRetries=120
+
+[Install]
+WantedBy=default.target

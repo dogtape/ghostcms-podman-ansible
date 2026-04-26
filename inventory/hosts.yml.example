@@ -1,12 +1,18 @@
 ---
 all:
   hosts:
-    hostname1:
+    hakase:
       ansible-host: host-ip
   children:
-    ghostcms-database:
+    ghost:
       hosts:
-        hostname1:
-    ghostcms-app:
+        hakase:
+    secrets_db:
       hosts:
-        hostname1:
+        hakase:
+    secrets_tinybird:
+      hosts:
+        hakase:
+    secrets_smtp:
+      hosts:
+        hakase:

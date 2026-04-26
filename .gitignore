@@ -1,3 +1,7 @@
+inventory/hosts.yml
+inventory/group_vars/secret*
+vault.pass
+
 .logs/*
 *.retry
 *.vault
@@ -13,8 +17,6 @@ collections/ansible_collections/dogtape/*
 __pycache__/
 *.py[cod]
 *$py.class
-
-inventory/hosts.yml
 
 # C extensions
 *.so
