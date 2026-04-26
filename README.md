@@ -14,6 +14,16 @@
 4. Follow [Ghost's Tinybird setup](https://docs.ghost.org/install/docker#get-tinybird-setup) and obtain `TINYBIRD_API_URL`, `TINYBIRD_WORKSPACE_ID`, `TINYBIRD_ADMIN_TOKEN`, and `TINYBIRD_TRACKER_TOKEN`.
 5. Use ansible vault to encrypt tinybird configs. Place the encryped string in `inventory/group_vars/secrets_tinybird.yml`. the command is `ansible-vault encrypt_string --vault-password-file vault.pass {{ value }} --name {{ var name }}`
 
+| variable name in ansible | value                          |
+|--------------------------|--------------------------------|
+| tinybird_stats_endpoint  | TINYBIRD_API_URL from 4.       |
+| tinybird_workspace_id    | TINYBIRD_WORKSPACE_ID from 4.  |
+| tinybird_admin_token     | TINYBIRD_ADMIN_TOKEN from 4.   |
+| tinybird_tracker_token   | TINYBIRD_TRACKER_TOKEN from 4. |
+
+6. Find an SMTP provider (or host your own) and obtain credentials.
+7. Use ansible vault to encrypt SMTP credentials. Place the encryped string in `inventory/group_vars/secrets_smtp.yml`. the command is `ansible-vault encrypt_string --vault-password-file vault.pass {{ value }} --name {{ var name }}`
+
 | variable name in ansible | value                              |
 |--------------------------|------------------------------------|
 | smtp_host                | (smtp host)                        |
@@ -21,9 +31,6 @@
 | smtp_auth_user           | (smtp auth user)                   |
 | smtp_from                | '(display name)' <(sending email)> |
 | smtp_auth_pass           | (smtp auth pass)                   |
-
-4. Find an SMTP provider (or host your own) and obtain credentials.
-5. Use ansible vault to encrypt SMTP credentials. Place the encryped string in `inventory/group_vars/secrets_smtp.yml`. the command is `ansible-vault encrypt_string --vault-password-file vault.pass {{ value }} --name {{ var name }}`
 
 ## Included content/ Directory Structure
 
