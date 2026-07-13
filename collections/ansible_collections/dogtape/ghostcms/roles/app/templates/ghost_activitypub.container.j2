@@ -1,9 +1,10 @@
 [Unit]
 Description=Ghost Acitivity Pub
-Requires=ghost_database.service ghost_activitypub_migrate.container.service
-After=ghost_database.service ghost_activitypub_migrate.container.service
+Requires=ghost_database.service #ghost_activitypub_migrate.service
+After=ghost_database.service #ghost_activitypub_migrate.service
 
 [Container]
+ContainerName=ghost_activitypub
 Image=ghcr.io/tryghost/activitypub:{{ ghost_activitypub_container_version }}
 AutoUpdate=registry
 Network=ghost.network
@@ -16,7 +17,14 @@ Environment=MYSQL_DATABASE=activitypub
 Environment=LOCAL_STORAGE_PATH=/opt/activitypub/content/images/activitypub
 Environment=LOCAL_STORAGE_HOSTING_URL=https://{{ fqdn }}/content/images/activitypub
 
-Volumes={{ ghost_upload_path }}:/opt/activitypub/content
+Volume={{ ghost_upload_path }}:/opt/activitypub/content
+
+Label=traefik.enable=true
+Label=traefik.http.services.ghost_activitypub.loadbalancer.server.port=8080
+Label=traefik.http.routers.ghost_activitypub.entrypoints=websecure
+Label=traefik.http.routers.ghost_activitypub.tls=true
+Label="traefik.http.routers.ghost_activitypub.rule=(Host(`{{ fqdn }}`){% if admin_fqdn is defined %} || Host(`{{ admin_fqdn }}`) {% endif %}) && (PathPrefix(`/.ghost/activitypub/`) || Path(`/.well-known/webfinger`) || Path(`/.well-known/nodeinfo`))"
+Label=traefik.http.routers.ghost_activitypub.priority=100
 
 [Install]
 WantedBy=default.target

@@ -1,5 +1,8 @@
 # Dogtape Ghostcms Ansible Project
 
+## Todo
+since arm64 activitypub migrations just being integrated into the repo from [this commit](https://github.com/TryGhost/ActivityPub/commit/7feee3ff3bf4a6da3dd5c6b1036766c38d9f518b) the migrations quadlet is set to 'edge' tag for now.
+
 ## How to use
 
 1. Copy `inventory/hosts.yml.example` to `inventory/hosts.yml` and edit how to connect to hosts

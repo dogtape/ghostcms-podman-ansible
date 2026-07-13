@@ -4,7 +4,9 @@ Requires=ghost.service
 After=ghost.service
 
 [Container]
+ContainerName=ghost_traffic_analytics
 Image=docker.io/ghost/traffic-analytics:{{ ghost_traffic_analytics_container_version }}
+AutoUpdate=registry
 Network=ghost.network
 
 Environment=NODE_ENV=production
@@ -13,6 +15,17 @@ Environment=TINYBIRD_TRACKER_TOKEN={{ tinybird_tracker_token }}
 Environment=SALT_STORE_TYPE=file
 Environment=SALT_STORE_FILE_PATH=/data/salts.json
 Environment=LOG_LEVEL=debug
+
+Label=traefik.enable=true
+Label=traefik.http.services.ghost_analytics.loadbalancer.server.port=3000
+Label=traefik.http.routers.ghost_analytics.entrypoints=websecure
+Label=traefik.http.routers.ghost_analytics.tls=true
+Label="traefik.http.routers.ghost_analytics.rule=(Host(`{{ fqdn }}`){% if admin_fqdn is defined %} || Host(`{{ admin_fqdn }}`) {% endif %}) && PathRegexp(`^.*/\\.ghost/analytics.*`)"
+
+Label=traefik.http.routers.ghost_analytics.priority=100
+Label=traefik.http.middlewares.ghost_analytics-strip.replacepathregex.regex=^.*/\\.ghost/analytics(.*)$$
+Label=traefik.http.middlewares.ghost_analytics-strip.replacepathregex.replacement=$$1
+Label=traefik.http.routers.ghost_analytics.middlewares=ghost_analytics-strip
 
 [Install]
 WantedBy=default.target

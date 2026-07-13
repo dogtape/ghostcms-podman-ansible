@@ -1,7 +1,7 @@
 [Unit]
 Description=Ghost CMS
-Requires=ghost_database.service
-After=ghost_database.service
+Requires=ghost_database.service ghost_activitypub.service
+After=ghost_database.service ghost_activitypub.service
 
 [Container]
 ContainerName=ghost
@@ -39,8 +39,8 @@ Label=traefik.enable=true
 Label=traefik.http.services.ghost.loadbalancer.server.port=2368
 Label=traefik.http.routers.ghost.entrypoints=websecure
 Label=traefik.http.routers.ghost.tls=true
-Label=traefik.http.routers.ghost.rule=Host(`{{ fqdn }}`){% if admin_fqdn is defined %} || Host(`{{ admin_fqdn }}`) {% endif %}
-
+Label="traefik.http.routers.ghost.rule=Host(`{{ fqdn }}`){% if admin_fqdn is defined %} || Host(`{{ admin_fqdn }}`){% endif %}"
+Label=traefik.http.routers.ghost.priority=10
 
 [Install]
 WantedBy=default.target
