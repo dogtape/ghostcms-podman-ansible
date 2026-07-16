@@ -8,6 +8,7 @@ ContainerName=ghost_traffic_analytics
 Image=docker.io/ghost/traffic-analytics:{{ ghost_traffic_analytics_container_version }}
 AutoUpdate=registry
 Network=ghost.network
+{% if selfhosted_tinybird == true %}Network=tinybird.network{% endif %}
 
 Environment=NODE_ENV=production
 Environment=PROXY_TARGET={{ tinybird_stats_endpoint }}/v0/events

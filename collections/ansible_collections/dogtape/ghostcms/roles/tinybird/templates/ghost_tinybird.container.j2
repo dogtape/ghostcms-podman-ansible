@@ -1,0 +1,19 @@
+[Container]
+Image=docker.io/tinybirdco/tinybird-local:{{ tinybird_local_container_version }}
+ContainerName=ghost_tinybird
+Network=tinybird.network
+AutoUpdate=registry
+
+HealthCmd=curl -f -s http://localhost:7181/tokens
+HealthInterval=5s
+HealthRetries=15
+HealthStartPeriod=10s
+
+Volume={{ tinybird_data_clickhouse_path }}:/var/lib/clickhouse
+Volume={{ tinybird_data_redis_path }}:/redis-data
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

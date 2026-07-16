@@ -9,6 +9,7 @@ Image=docker.io/library/ghost:{{ ghost_container_version }}
 AutoUpdate=registry
 Network=ghost.network
 Network=traefik.network
+{% if selfhosted_tinybird == true %}Network=tinybird.network{% endif %}
 
 Environment=NODE_ENV=production
 Environment=url=https://{{ fqdn }}

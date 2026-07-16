@@ -3,5 +3,6 @@
   hosts: hakase
   roles:
     - role: dogtape.ghostcms.podman
+    # - role: dogtape.ghostcms.tinybird
     - role: dogtape.ghostcms.app
     - role: dogtape.ghostcms.traefik

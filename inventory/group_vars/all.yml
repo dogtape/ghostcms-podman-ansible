@@ -1,3 +1,4 @@
 ---
 ansible_user: web
 quadlets_path: "{{ ansible_facts['user_dir'] }}/.config/containers/systemd"
+selfhosted_tinybird: true

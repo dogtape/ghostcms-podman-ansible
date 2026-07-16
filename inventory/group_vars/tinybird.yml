@@ -1,0 +1,11 @@
+tinybird_local_container_version: "latest"
+
+tinybird_quadlets_path: "{{ quadlets_path }}/tinybird"
+
+tinybird_data_base_path: "{{ ansible_facts['user_dir'] }}/tinybird"
+tinybird_data_schema_home_path: "{{ tinybird_data_base_path }}/schema/home"
+tinybird_data_schema_files_path: "{{ tinybird_data_base_path }}/schema/files"
+tinybird_data_clickhouse_path: "{{ tinybird_data_base_path }}/clickhouse"
+tinybird_data_redis_path: "{{ tinybird_data_base_path }}/redis"
+
+ghost_docker_path: "{{ ansible_facts['user_dir'] }}/ghost-docker"

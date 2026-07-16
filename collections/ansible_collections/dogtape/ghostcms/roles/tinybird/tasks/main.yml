@@ -1,0 +1,136 @@
+---
+- name: "Create Folder if not exist"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    mode: '755'
+    state: directory
+  loop:
+    - "{{ tinybird_quadlets_path }}"
+    - "{{ tinybird_data_base_path }}"
+    - "{{ tinybird_data_schema_home_path }}"
+    - "{{ tinybird_data_schema_files_path }}"
+    - "{{ tinybird_data_clickhouse_path }}"
+    - "{{ tinybird_data_redis_path }}"
+
+- name: Copy static quadlets
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ tinybird_quadlets_path }}/{{ item | basename }}"
+    mode: '600'
+  with_fileglob:
+    - "files/*"
+
+- name: Copy dynamic quadlets
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "{{ tinybird_quadlets_path }}/{{ item | basename | regex_replace('\\.j2$') }}"
+    mode: '600'
+  with_fileglob:
+    - "templates/*"
+
+- name: Reload systemd user daemon and start Tinybird Local
+  ansible.builtin.systemd:
+    name: ghost_tinybird.service
+    scope: user
+    state: restarted
+    daemon_reload: true
+
+- name: Tinybird healthcheck
+  containers.podman.podman_container_info:
+    name: ghost_tinybird
+  register: tinybird_tb_info
+  until:
+    - tinybird_tb_info.containers | length > 0
+    - "'Health' in tinybird_tb_info.containers[0].State"
+    - tinybird_tb_info.containers[0].State.Health.Status == 'healthy'
+  retries: 20
+  delay: 5
+
+
+- name: Retrieve tokens json
+  containers.podman.podman_container_exec:
+    name: ghost_tinybird
+    command: "curl -s http://localhost:7181/tokens"
+  register: tinybird_tokens_json
+
+- name: Parse tokens json
+  ansible.builtin.set_fact:
+    tinybird_tokens: "{{ tinybird_tokens_json.stdout | from_json }}"
+
+- name: Save tokens as fact
+  ansible.builtin.set_fact:
+    tinybird_admin_token: "{{ tinybird_tokens.admin_token }}"
+    tinybird_tracker_token: "{{ tinybird_tokens.user_token }}"
+    tinybird_workspace_id: "{{ ((tinybird_tokens.workspace_admin_token.split('.')[1]) | b64decode | from_json).u }}"
+    tinybird_stats_endpoint: "http://ghost_tinybird:7181"
+
+- name: Clone ghost-docker
+  ansible.builtin.git:
+    repo: https://github.com/TryGhost/ghost-docker.git
+    dest: "{{ ghost_docker_path }}"
+    single_branch: true
+    version: main
+
+- name: Build helper image
+  containers.podman.podman_image:
+    name: ghost-tinybird-helper
+    path: "{{ ghost_docker_path }}/tinybird"
+    build:
+      cache: true
+
+- name: Sync Tinybird schemas
+  containers.podman.podman_container:
+    name: tinybird_sync
+    image: "ghost:{{ ghost_container_version }}"
+    command:
+      - /bin/sh
+      - -c
+      - |
+        if [ -d /var/lib/ghost/current/core/server/data/tinybird ]; then
+          rm -rf /data/tinybird/*
+          cp -rf /var/lib/ghost/current/core/server/data/tinybird/. /data/tinybird/
+          echo 'Tinybird files synced into shared volume.'
+        else
+          echo 'Tinybird source directory not found.'
+        fi
+    volumes:
+      - "{{ tinybird_data_schema_files_path }}:/data/tinybird"
+    detach: false
+    rm: true
+
+- name: Authenticate Tinybird
+  containers.podman.podman_container:
+    name: tinybird_login
+    image: ghost-tinybird-helper
+    working_dir: /home/tinybird
+    command:
+      - /bin/sh
+      - -c
+      - tb --host {{ tinybird_stats_endpoint }} --token {{ tinybird_tokens.workspace_admin_token }} auth
+    volumes:
+      - "{{ tinybird_data_schema_home_path }}:/home/tinybird"
+      - "{{ tinybird_data_schema_files_path }}:/data/tinybird"
+    network: systemd-tinybird
+    detach: false
+    rm: true
+
+- name: Deploy Tinybird schemas
+  containers.podman.podman_container:
+    name: tinybird_deploy
+    image: ghost-tinybird-helper
+    working_dir: /data/tinybird
+    command:
+      - /bin/sh
+      - -c
+      - tb-wrapper --cloud deploy --allow-destructive-operations
+    volumes:
+      - "{{ tinybird_data_schema_home_path }}:/home/tinybird"
+      - "{{ tinybird_data_schema_files_path }}:/data/tinybird"
+    network: systemd-tinybird
+    detach: false
+    rm: true
+
+- name: Remove ghost-docker
+  ansible.builtin.file:
+    path: "{{ ghost_docker_path }}"
+    state: absent

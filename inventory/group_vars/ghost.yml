@@ -14,7 +14,7 @@ ghost_activitypub_container_version: edge
 # tinybird_admin_token:
 # tinybird_workspace_id:
 # tinybird_tracker_token:
-tinybird_stats_endpoint: https://api.tinybird.co
+# tinybird_stats_endpoint: https://api.tinybird.co
 
 ghost_quadlets_path: "{{ quadlets_path }}/ghost"
 
