@@ -6,7 +6,7 @@
     state: directory
   loop:
     - "{{ ghost_quadlets_path }}"
-    - "{{ data_dir }}"
+    - "{{ ghost_data_base_path }}"
     - "{{ ghost_upload_path }}"
     - "{{ mysql_data_path }}"
     - "{{ mysql_init_path }}"
@@ -33,14 +33,37 @@
   with_fileglob:
     - "templates/*"
 
-- name: Start quadlets
+- name: Systemd daemon Reload
+  ansible.builtin.systemd_service:
+    scope: user
+    daemon_reload: true
+
+- name: Start database
+  ansible.builtin.systemd_service:
+    scope: user
+    state: restarted
+    name: "{{ item }}"
+  loop:
+    - "ghost_database"
+
+- name: Database healthcheck
+  containers.podman.podman_container_info:
+    name: ghost_database
+  register: app_db_info
+  until:
+    - app_db_info.containers | length > 0
+    - "'Health' in app_db_info.containers[0].State"
+    - app_db_info.containers[0].State.Health.Status == 'healthy'
+  retries: 20
+  delay: 5
+
+- name: Start application
   ansible.builtin.systemd_service:
     scope: user
     state: restarted
     daemon_reload: true
     name: "{{ item }}"
   loop:
-    - "ghost_database"
     - "ghost_activitypub_migrate"
     - "ghost_activitypub"
     - "ghost_traffic_analytics"

@@ -5,7 +5,7 @@ After=ghost_database.service
 
 [Container]
 ContainerName=ghost_activitypub_migrate
-Image=ghcr.io/tryghost/activitypub-migrations:edge
+Image=ghcr.io/tryghost/activitypub-migrations:{{ ghost_activitypub_container_version }}
 AutoUpdate=registry
 Network=ghost.network
 
