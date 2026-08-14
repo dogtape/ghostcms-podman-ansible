@@ -6,11 +6,11 @@ db_name: ghost
 # db_password:
 ghost_data_base_path: "{{ ansible_facts['user_dir'] }}/ghost"
 fqdn: dogtape.net
-# admin_fqdn: admin.dogtape.net
+admin_fqdn: admin.dogtape.net
 
 ghost_container_version: 6-alpine
 ghost_traffic_analytics_container_version: 1
-ghost_activitypub_container_version: edge
+ghost_activitypub_container_version: 1
 # tinybird_admin_token:
 # tinybird_workspace_id:
 # tinybird_tracker_token:
