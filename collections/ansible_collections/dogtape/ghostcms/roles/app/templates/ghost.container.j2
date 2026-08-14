@@ -31,7 +31,7 @@ Environment=mail__options__host={{ smtp_host }}
 Environment=mail__options__port={{ smtp_port }}
 Environment=mail__options__auth__user={{ smtp_auth_user }}
 Environment=mail__options__auth__pass={{ smtp_auth_pass }}
-Environment=mail__from={{ smtp_from }}
+Environment="mail__from={{ smtp_from }}"
 
 Volume={{ ghost_upload_path }}:/var/lib/ghost/content:Z
 
